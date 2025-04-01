@@ -92,3 +92,19 @@ pub async fn update_todo_completed(
 
     Ok(HttpResponse::Ok().json(updated_todo))
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BatchCreateTodo {
+    pub todos: Vec<CreateTodo>,
+}
+
+pub async fn batch_create_todos(
+    db: web::Data<sea_orm::DatabaseConnection>,
+    form: web::Json<BatchCreateTodo>,
+) -> Result<HttpResponse, Error> {
+    dao::batch_create_todos(&db, form.todos.clone())
+        .await
+        .map_err(actix_web::error::ErrorInternalServerError)?;
+        
+    Ok(HttpResponse::NoContent().finish())
+}

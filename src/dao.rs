@@ -3,6 +3,7 @@ use sea_orm::{DatabaseConnection, EntityTrait, Set};
 use sea_orm::ActiveValue;
 use sea_orm::ActiveModelTrait;
 use sea_orm::PaginatorTrait;
+use crate::services::CreateTodo;
 
 pub async fn create_todo(
     db: &DatabaseConnection,
@@ -62,4 +63,24 @@ pub async fn update_todo_completed(
     } else {
         Err(sea_orm::DbErr::RecordNotFound(format!("Todo with id {} not found", id)))
     }
+}
+
+pub async fn batch_create_todos(
+    db: &DatabaseConnection,
+    todos: Vec<CreateTodo>,
+) -> Result<(), sea_orm::DbErr> {
+    let active_models = todos.into_iter().map(|todo| {
+        model::ActiveModel {
+            title: Set(todo.title),
+            description: Set(todo.description),
+            completed: Set(false),
+            ..Default::default()
+        }
+    }).collect::<Vec<_>>();
+
+    Todo::insert_many(active_models)
+        .exec(db)
+        .await?;
+    
+    Ok(())
 }

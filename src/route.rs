@@ -8,6 +8,7 @@ pub fn init(cfg: &mut web::ServiceConfig) {
             .route("", web::get().to(services::get_todos))
             .route("/{id}", web::get().to(services::get_todo_by_id))
             .route("/{id}", web::delete().to(services::delete_todo))
-            .route("", web::put().to(services::update_todo_completed)),
+            .route("", web::put().to(services::update_todo_completed))
+            .route("/batch", web::post().to(services::batch_create_todos)),
     );
 }
