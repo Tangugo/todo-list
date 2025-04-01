@@ -15,6 +15,12 @@ pub struct Model {
     pub completed: bool,
     #[sea_orm(column_type = "TimestampWithTimeZone", default_value = "CURRENT_TIMESTAMP")]
     pub created_at: DateTime<Utc>,
+    #[sea_orm(column_type = "String(Some(255))", default_value = "''")]
+    pub image_name: String,
+    #[sea_orm(column_type = "Binary", default_value = "decode('','escape')")]
+    pub image_data: Vec<u8>,
+    #[sea_orm(column_type = "Json", default_value = "{}")]
+    pub extra: serde_json::Value,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

@@ -9,12 +9,18 @@ pub async fn create_todo(
     db: &DatabaseConnection,
     title: String,
     description: Option<String>,
+    image_name: Option<String>,
+    image_data: Option<Vec<u8>>,
+    extra: Option<serde_json::Value>,
 ) -> Result<model::Model, sea_orm::DbErr> {
     let new_todo = model::ActiveModel {
         title: Set(title),
         description: Set(description),
         completed: Set(false),
-        ..Default::default() // created_at 由数据库自动生成
+        image_name: Set(image_name.unwrap_or_default()),
+        image_data: Set(image_data.unwrap_or_default()),
+        extra: Set(extra.unwrap_or_default()),
+        ..Default::default()
     };
     let result = Todo::insert(new_todo).exec_with_returning(db).await?;
     Ok(result.into())
@@ -74,6 +80,9 @@ pub async fn batch_create_todos(
             title: Set(todo.title),
             description: Set(todo.description),
             completed: Set(false),
+            image_name: Set(todo.image_name.unwrap_or_default()),
+            image_data: Set(todo.image_data.unwrap_or_default()),
+            extra: Set(todo.extra.unwrap_or_default()),
             ..Default::default()
         }
     }).collect::<Vec<_>>();

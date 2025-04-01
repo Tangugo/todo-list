@@ -6,15 +6,25 @@ use serde::{Serialize, Deserialize};
 pub struct CreateTodo {
     pub title: String,
     pub description: Option<String>,
+    pub image_name: Option<String>,
+    pub image_data: Option<Vec<u8>>,
+    pub extra: Option<serde_json::Value>,
 }
 
 pub async fn create_todo(
     db: web::Data<sea_orm::DatabaseConnection>,
     form: web::Json<CreateTodo>,
 ) -> Result<HttpResponse, Error> {
-    let todo = dao::create_todo(&db, form.title.clone(), form.description.clone())
-        .await
-        .map_err(actix_web::error::ErrorInternalServerError)?;
+    let todo = dao::create_todo(
+        &db, 
+        form.title.clone(),
+        form.description.clone(),
+        form.image_name.clone(),
+        form.image_data.clone(),
+        form.extra.clone(),
+    )
+    .await
+    .map_err(actix_web::error::ErrorInternalServerError)?;
     Ok(HttpResponse::Ok().json(todo))
 }
 
